@@ -1,0 +1,170 @@
+export const DEMO_JOBS = [
+  {
+    customer: "Luis Mendoza",
+    company: "Casa Verde Restaurant",
+    phone: "(555) 014-8821",
+    source: "Phone",
+    issue: "Walk-in freezer down; box temperature climbing",
+    equipment: "Walk-in freezer",
+    status: "Quote Needed",
+    value: 2000,
+    priority: "Urgent",
+    daysCreatedAgo: 3,
+    daysLastContactAgo: 2,
+    followupOffset: -1,
+    notes: "Friday emergency call. Customer asked for an estimate after diagnosis. High risk of lost product."
+  },
+  {
+    customer: "Rachel Kim",
+    company: "Green Basket Market",
+    phone: "(555) 013-2198",
+    source: "Website",
+    issue: "Produce cooler cycling warm every few hours",
+    equipment: "Produce cooler",
+    status: "Awaiting Approval",
+    value: 1450,
+    priority: "Normal",
+    daysCreatedAgo: 4,
+    daysLastContactAgo: 2,
+    followupOffset: 0,
+    notes: "Quote sent by email. Waiting for store manager approval."
+  },
+  {
+    customer: "Sam Patel",
+    company: "North Dock Warehouse",
+    phone: "(555) 010-4387",
+    source: "Text",
+    issue: "Ice machine leaking onto prep area",
+    equipment: "Commercial ice machine",
+    status: "New",
+    value: 650,
+    priority: "Normal",
+    daysCreatedAgo: 1,
+    daysLastContactAgo: 1,
+    followupOffset: 0,
+    notes: "Repeat customer. Asked for earliest diagnosis window."
+  },
+  {
+    customer: "Maya Brooks",
+    company: "Pine & Stone Bistro",
+    phone: "(555) 019-6614",
+    source: "Referral",
+    issue: "Reach-in refrigerator making loud compressor noise",
+    equipment: "Reach-in refrigerator",
+    status: "Scheduled",
+    value: 780,
+    priority: "Normal",
+    daysCreatedAgo: 5,
+    daysLastContactAgo: 1,
+    followupOffset: 1,
+    notes: "Scheduled for tomorrow morning. Manager will meet tech at back entrance."
+  },
+  {
+    customer: "Kevin Ross",
+    company: "Bluebird Café",
+    phone: "(555) 012-9073",
+    source: "Repeat customer",
+    issue: "Prep cooler not cooling below 48°F",
+    equipment: "Prep table cooler",
+    status: "Done",
+    value: 950,
+    priority: "Normal",
+    daysCreatedAgo: 9,
+    daysLastContactAgo: 1,
+    followupOffset: 14,
+    notes: "Repair completed. Invoice sent."
+  },
+  {
+    customer: "Angela Morris",
+    company: "Eastside Grocery",
+    phone: "(555) 018-4402",
+    source: "Phone",
+    issue: "Frozen display case temperature rising",
+    equipment: "Frozen display case",
+    status: "Quote Needed",
+    value: 1100,
+    priority: "Urgent",
+    daysCreatedAgo: 2,
+    daysLastContactAgo: 2,
+    followupOffset: -1,
+    notes: "Customer is concerned about product loss. Needs repair options today."
+  },
+  {
+    customer: "Jordan Lee",
+    company: "Harbor Fish Market",
+    phone: "(555) 011-3350",
+    source: "Website",
+    issue: "Walk-in cooler door icing and not sealing",
+    equipment: "Walk-in cooler",
+    status: "Awaiting Approval",
+    value: 1250,
+    priority: "Normal",
+    daysCreatedAgo: 6,
+    daysLastContactAgo: 3,
+    followupOffset: -1,
+    notes: "Estimate sent for heater and gasket work. No reply yet."
+  },
+  {
+    customer: "Nina Carter",
+    company: "West End Bakery",
+    phone: "(555) 016-7820",
+    source: "Text",
+    issue: "Dough retarder showing intermittent high-temp alarm",
+    equipment: "Retarder/proofer",
+    status: "New",
+    value: 900,
+    priority: "Normal",
+    daysCreatedAgo: 0,
+    daysLastContactAgo: 0,
+    followupOffset: 1,
+    notes: "Customer sent a photo of the controller alarm."
+  },
+  {
+    customer: "Omar Haddad",
+    company: "Metro Shawarma",
+    phone: "(555) 015-9924",
+    source: "Phone",
+    issue: "Walk-in cooler completely warm before dinner service",
+    equipment: "Walk-in cooler",
+    status: "Scheduled",
+    value: 1800,
+    priority: "Urgent",
+    daysCreatedAgo: 1,
+    daysLastContactAgo: 0,
+    followupOffset: 0,
+    notes: "Emergency visit scheduled for this afternoon."
+  },
+  {
+    customer: "Claire Young",
+    company: "Riverside Deli",
+    phone: "(555) 017-1038",
+    source: "Referral",
+    issue: "Under-counter refrigerator pooling water",
+    equipment: "Under-counter refrigerator",
+    status: "Done",
+    value: 425,
+    priority: "Normal",
+    daysCreatedAgo: 12,
+    daysLastContactAgo: 2,
+    followupOffset: 12,
+    notes: "Drain cleared and unit tested."
+  }
+];
+
+export const DEMO_MESSAGES = [
+  {
+    label: "Emergency phone note",
+    source: "Phone",
+    text: "Marco from Northside Pizza called. Their walk-in freezer is completely down and food is starting to soften. He said call him back at 555-018-7732. They need someone today if possible."
+  },
+  {
+    label: "Website form",
+    source: "Website",
+    text: "Name: Erica Johnson\nBusiness: Fresh Lane Grocery\nPhone: 555-014-1190\nMessage: Our dairy display case has been running around 47 degrees since yesterday. Can someone take a look and send us an estimate?"
+  },
+  {
+    label: "Customer text",
+    source: "Text",
+    text: "Hey Denise, this is Tony at Bell Street Cafe. The ice machine is making ice but it's leaking pretty bad underneath again. Not an emergency, but can you get us on the list this week? 555-012-4407"
+  }
+];
