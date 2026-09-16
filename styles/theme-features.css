@@ -1,0 +1,264 @@
+/* Follow-up queue */
+.followup-list {
+  padding: 0 10px 10px;
+  gap: 7px;
+}
+
+.followup-card {
+  border-color: #eaedf2;
+  border-left-width: 3px;
+  border-radius: 10px;
+  padding: 13px 14px;
+  background: #fff;
+}
+
+.followup-card.overdue {
+  background: #fff;
+  border-left-color: var(--gw-red);
+}
+
+.followup-card.today {
+  background: #fff;
+  border-left-color: #e6a11f;
+}
+
+.customer strong,
+.issue strong {
+  color: var(--gw-text);
+  font-size: 12px;
+}
+
+.customer small,
+.issue small,
+.due small {
+  font-size: 10px;
+}
+
+/* Pipeline */
+.pipeline {
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+
+.pipeline-col {
+  background: #fafbfc;
+  border-color: #e9ecf2;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.pipeline-head h4 {
+  color: #344054;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.count-pill {
+  min-width: 22px;
+  height: 22px;
+  background: #eef1f5;
+  color: #667085;
+  font-size: 10px;
+}
+
+.job-chip {
+  border-color: #e6e9ef;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.job-chip:hover {
+  border-color: #cfd6e3;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, .05);
+}
+
+/* AI intake */
+.ai-layout {
+  gap: 16px;
+}
+
+.ai-body {
+  padding: 2px 20px 20px;
+}
+
+.demo-chip {
+  color: #3854c8;
+  background: #f5f7ff;
+  border-color: #dce3ff;
+}
+
+.demo-chip:hover {
+  background: var(--gw-blue-soft);
+  border-color: var(--gw-blue-border);
+}
+
+.review-edit-note {
+  background: #f7f9ff;
+  border-color: #e1e7ff;
+  color: #4b5b7a;
+}
+
+.review-edit-note strong {
+  color: #263554;
+}
+
+/* Forms */
+input,
+select,
+textarea,
+.review-edit-field input,
+.review-edit-field select,
+.review-textarea-field textarea {
+  border-color: var(--gw-border-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--gw-text);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .015);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: #c5ccd8;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.review-edit-field input:focus,
+.review-edit-field select:focus,
+.review-textarea-field textarea:focus {
+  border-color: #7f96ff;
+  box-shadow: 0 0 0 3px rgba(49, 87, 246, .10);
+}
+
+.field-label,
+.form-grid label {
+  color: #475467;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.field-label-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: max-content;
+  line-height: 1.2;
+}
+
+.required-star {
+  display: inline;
+  margin: 0;
+}
+
+/* All jobs table */
+.jobs-toolbar {
+  padding: 18px 20px;
+}
+
+.table-wrap {
+  border-top-color: var(--gw-border);
+}
+
+th {
+  color: #7a8497;
+  background: #fafbfc;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .075em;
+}
+
+td {
+  color: #344054;
+  font-size: 12px;
+}
+
+th,
+td {
+  border-bottom-color: #edf0f4;
+  padding: 12px 14px;
+}
+
+.status {
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-size: 9px;
+  letter-spacing: .015em;
+}
+
+.status-New {
+  background: #f1f3f6;
+  color: #475467;
+}
+
+.status-Quote-Needed {
+  background: var(--gw-amber-soft);
+  color: var(--gw-amber);
+}
+
+.status-Awaiting-Approval {
+  background: var(--gw-blue-soft);
+  color: #3651c6;
+}
+
+.status-Scheduled {
+  background: #edf8ff;
+  color: #14759a;
+}
+
+.status-Done {
+  background: var(--gw-green-soft);
+  color: var(--gw-green);
+}
+
+/* Dialogs */
+dialog {
+  width: min(860px, calc(100vw - 32px));
+  border: 1px solid rgba(230, 233, 239, .9);
+  border-radius: 16px;
+  box-shadow: var(--gw-shadow-float);
+}
+
+dialog::backdrop {
+  background: rgba(16, 24, 40, .42);
+  backdrop-filter: blur(2px);
+}
+
+.modal-card {
+  background: #fff;
+  padding: 24px;
+}
+
+.modal-head h3 {
+  color: var(--gw-text);
+  font-size: 21px;
+  letter-spacing: -.025em;
+}
+
+.icon-btn {
+  background: #f5f6f8;
+  color: #344054;
+}
+
+.icon-btn:hover {
+  background: #ebedf1;
+}
+
+.detail-item {
+  background: #f8f9fb;
+  border: 1px solid #f0f1f4;
+  border-radius: 8px;
+}
+
+.detail-item span {
+  color: #7c879a;
+  font-size: 9px;
+}
+
+.notes-box {
+  border-color: var(--gw-border);
+  background: #fff;
+  color: #475467;
+}
+
