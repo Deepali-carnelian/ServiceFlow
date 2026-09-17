@@ -1,146 +1,105 @@
-const { geminiConfigured } = require('../config/env');
-const { callGeminiAuto, parseModelJson } = require('../ai/geminiClient');
-const { localDraft, localExtract } = require('../ai/localFallback');
 const { readJson } = require('../http/body');
 const { sendJson } = require('../http/response');
+const { geminiConfigured } = require('../config/env');
+const { callGeminiAuto, parseModelJson } = require('../ai/geminiClient');
 
-const EXTRACTION_PROMPT = `
-You convert messy customer calls, texts, website messages and emails
-into structured service requests for a small commercial refrigeration
-repair company.
+const ALLOWED_STATUSES = ['New','Waiting on Quote','Waiting on Yes','Needs Scheduling','Scheduled'];
 
-Return ONLY one valid JSON object. Do not use markdown.
-
-Required JSON shape:
-{
-  "customer": "string",
-  "company": "string",
-  "phone": "string",
-  "source": "string",
-  "equipment": "string",
-  "issue": "string",
-  "priority": "Normal or Urgent",
-  "summary": "string",
-  "suggestedStatus": "New or Quote Needed",
-  "suggestedFollowupDays": 0
-}
-
+const CALL_PROMPT = `
+You summarize a customer service phone transcript for a small commercial refrigeration repair company.
+Return ONLY one valid JSON object. No markdown.
+Exact shape:
+{"summary":"string","issueUpdate":"string","priority":"Normal or Urgent","suggestedStatus":"New, Waiting on Quote, Waiting on Yes, Needs Scheduling, or Scheduled","nextAction":"string","followupDays":0,"confidence":0.0}
 Rules:
-- Never invent a customer name, company or phone number.
-- If a detail is missing, use an empty string.
-- Keep source equal to the supplied intake channel.
-- Urgent means equipment is down, stock/food is at risk, or the customer requests emergency/same-day help.
-- Use "Quote Needed" only if the customer explicitly asks for a quote, estimate, cost or pricing.
-- Otherwise use "New".
-- suggestedFollowupDays should be 0 for urgent requests and normally 1 for non-urgent requests.
-- Keep issue and summary concise.
+- Use only facts explicitly supported by the transcript and current job context.
+- Never invent prices, technical diagnoses, parts, appointment times, customer identity, or promises.
+- Urgent only when equipment is down, product/food is at risk, or same-day/emergency help is requested.
+- If the customer explicitly asks for an estimate/quote and has not approved one, suggestedStatus may be Waiting on Quote.
+- If a quote is already sent and the customer has not approved, suggestedStatus may be Waiting on Yes.
+- If the customer clearly approves a quote or says to proceed, suggestedStatus may be Needs Scheduling.
+- Use Scheduled only if the transcript clearly confirms a specific agreed appointment; otherwise use Needs Scheduling.
+- Keep issueUpdate empty unless the transcript adds or clarifies the actual service problem.
+- nextAction must be a short operational action grounded in the transcript.
+- followupDays is 0 when action is needed today; normally 1 otherwise.
+- confidence is 0 to 1.
 `.trim();
 
-const DRAFT_PROMPT = `
-You write short customer follow-up SMS messages for Denise, owner of a small commercial refrigeration repair company.
+function clean(value, max = 500) { return String(value || '').replace(/\0/g, '').trim().slice(0, max); }
+function localCallSummary(transcript, currentJob = {}) {
+  const text = clean(transcript, 20_000);
+  const lower = text.toLowerCase();
+  const currentStatus = ALLOWED_STATUSES.includes(currentJob.status) ? currentJob.status : 'New';
+  const urgent = /\b(urgent|emergency|today|same day|product|food|stock)\b/.test(lower) && /\b(down|warm|warming|thaw|not cooling|stopped)\b/.test(lower);
+  const approved = /\b(approved|go ahead|proceed|quote is approved|looks good)\b/.test(lower);
+  const asksQuote = /\b(quote|estimate|price|pricing|cost)\b/.test(lower);
+  const exactAppointment = /\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow)\b.{0,40}\b(?:\d{1,2}(?::\d{2})?\s*(?:am|pm)|morning|afternoon)\b/.test(lower) && /\b(confirm|confirmed|works|appointment|schedule)\b/.test(lower);
 
-Return ONLY the SMS text.
+  let suggestedStatus = currentStatus;
+  if (approved) suggestedStatus = 'Needs Scheduling';
+  else if (asksQuote && ['New','Waiting on Quote'].includes(currentStatus)) suggestedStatus = 'Waiting on Quote';
+  else if (currentStatus === 'Waiting on Yes') suggestedStatus = 'Waiting on Yes';
+  if (exactAppointment && currentStatus === 'Needs Scheduling') suggestedStatus = 'Needs Scheduling'; // exact time still requires Denise to explicitly schedule in the UI.
 
-Rules:
-- Natural, professional and concise.
-- Maximum 320 characters.
-- Use the customer's first name when known.
-- Briefly reference the equipment or issue.
-- Respect the current job status.
-- Never invent a price, appointment time, technician, diagnosis, completion status or guarantee.
-- Do not promise same-day service unless the job data explicitly says it.
-- End with one clear next action or question.
-`.trim();
+  let nextAction = 'Follow up tomorrow';
+  if (suggestedStatus === 'Waiting on Quote') nextAction = 'Prepare / send quote';
+  else if (suggestedStatus === 'Waiting on Yes') nextAction = 'Follow up on quote';
+  else if (suggestedStatus === 'Needs Scheduling') nextAction = 'Choose service date';
+  else if (suggestedStatus === 'Scheduled') nextAction = 'Complete service visit';
+  else if (urgent) nextAction = 'Review request and act today';
+  else nextAction = 'Review job';
 
-async function handleExtract(req, res) {
-  try {
-    const body = await readJson(req);
-    const text = String(body.text || '').trim();
-    const source = String(body.source || 'Unknown').trim();
-
-    if (!text) return sendJson(res, 400, { error: 'Request text is required.' });
-
-    const fallback = () => sendJson(res, 200, {
-      mode: 'demo-fallback',
-      provider: 'Local fallback',
-      model: 'local-demo-parser',
-      result: localExtract(text, source)
-    });
-
-    if (!geminiConfigured()) return fallback();
-
-    try {
-      const llm = await callGeminiAuto({
-        systemInstruction: EXTRACTION_PROMPT,
-        userText: `Intake channel: ${source}\n\nCustomer message:\n${text}`,
-        jsonOutput: true,
-        temperature: 0.1
-      });
-      const result = parseModelJson(llm.text);
-      result.source = source;
-
-      return sendJson(res, 200, {
-        mode: 'live-llm',
-        provider: 'Gemini',
-        model: llm.model,
-        result
-      });
-    } catch (error) {
-      console.warn('[Gemini] Intake fell back to local mode:', error.message);
-      return fallback();
-    }
-  } catch (error) {
-    console.error('Extract request error:', error);
-    return sendJson(res, 500, { error: error.message || 'Unable to analyse the request.' });
-  }
+  const customerLines = text.split(/\r?\n/).filter(line => !/^denise\s*:/i.test(line)).map(line => line.replace(/^[^:]{1,80}:\s*/, '')).filter(Boolean);
+  const summary = clean(customerLines.slice(-2).join(' '), 240) || 'Customer call completed and recorded.';
+  return {
+    summary,
+    issueUpdate: '',
+    priority: urgent ? 'Urgent' : (currentJob.priority === 'Urgent' ? 'Urgent' : 'Normal'),
+    suggestedStatus,
+    nextAction,
+    followupDays: urgent || ['Waiting on Quote','Needs Scheduling'].includes(suggestedStatus) ? 0 : 1,
+    confidence: 0.72
+  };
+}
+function normalize(raw, currentJob = {}) {
+  const fallback = localCallSummary('', currentJob);
+  return {
+    summary: clean(raw?.summary || fallback.summary, 300),
+    issueUpdate: clean(raw?.issueUpdate || '', 400),
+    priority: raw?.priority === 'Urgent' ? 'Urgent' : 'Normal',
+    suggestedStatus: ALLOWED_STATUSES.includes(raw?.suggestedStatus) ? raw.suggestedStatus : (ALLOWED_STATUSES.includes(currentJob.status) ? currentJob.status : 'New'),
+    nextAction: clean(raw?.nextAction || fallback.nextAction, 160),
+    followupDays: Number.isFinite(Number(raw?.followupDays)) ? Math.max(0, Math.min(14, Number(raw.followupDays))) : 1,
+    confidence: Number.isFinite(Number(raw?.confidence)) ? Math.max(0, Math.min(1, Number(raw.confidence))) : 0.7
+  };
 }
 
-async function handleDraft(req, res) {
-  try {
-    const body = await readJson(req);
-    const job = body.job || body;
-    if (!job || typeof job !== 'object') return sendJson(res, 400, { error: 'Job details are required.' });
-
-    const fallback = () => sendJson(res, 200, {
-      mode: 'demo-fallback',
-      provider: 'Local fallback',
-      model: 'local-demo-writer',
-      draft: localDraft(job)
-    });
-
-    if (!geminiConfigured()) return fallback();
-
-    const safeJob = {
-      customer: job.customer || '',
-      company: job.company || '',
-      equipment: job.equipment || '',
-      issue: job.issue || '',
-      status: job.status || '',
-      priority: job.priority || '',
-      notes: job.notes || ''
-    };
-
+async function handleAiRoutes(req, res, url) {
+  if (req.method === 'POST' && url.pathname === '/api/ai/call-summary') {
     try {
-      const llm = await callGeminiAuto({
-        systemInstruction: DRAFT_PROMPT,
-        userText: JSON.stringify(safeJob, null, 2),
-        temperature: 0.4
-      });
+      const body = await readJson(req);
+      const transcript = clean(body.transcript, 20_000);
+      const currentJob = body.currentJob && typeof body.currentJob === 'object' ? body.currentJob : {};
+      if (!transcript) return sendJson(res, 400, { error: 'Transcript is required.' });
 
-      return sendJson(res, 200, {
-        mode: 'live-llm',
-        provider: 'Gemini',
-        model: llm.model,
-        draft: llm.text.trim()
-      });
+      if (geminiConfigured()) {
+        try {
+          const result = await callGeminiAuto({
+            systemInstruction: CALL_PROMPT,
+            userText: `CURRENT JOB:\n${JSON.stringify(currentJob)}\n\nCALL TRANSCRIPT:\n${transcript}`,
+            jsonOutput: true,
+            temperature: 0.1
+          });
+          return sendJson(res, 200, { analysis: normalize(parseModelJson(result.text), currentJob), mode: 'gemini', model: result.model });
+        } catch (error) {
+          console.warn('[Call summary] Gemini failed, using deterministic fallback:', error.message);
+        }
+      }
+      return sendJson(res, 200, { analysis: normalize(localCallSummary(transcript, currentJob), currentJob), mode: 'fallback' });
     } catch (error) {
-      console.warn('[Gemini] Draft fell back to local mode:', error.message);
-      return fallback();
+      return sendJson(res, 400, { error: error.message || 'Unable to summarize call.' });
     }
-  } catch (error) {
-    console.error('Draft request error:', error);
-    return sendJson(res, 500, { error: error.message || 'Unable to draft the follow-up.' });
   }
+  return false;
 }
 
-module.exports = { handleExtract, handleDraft };
+module.exports = { handleAiRoutes, localCallSummary };

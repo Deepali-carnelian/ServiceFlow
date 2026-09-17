@@ -1,4 +1,4 @@
-const { GEMINI_API_KEY, ENV_MODEL, geminiConfigured } = require('../config/env');
+const { GEMINI_API_KEY, ENV_MODEL, AI_TIMEOUT_MS, geminiConfigured } = require('../config/env');
 const {
   getCandidateModels,
   setLastWorkingModel,
@@ -27,7 +27,8 @@ async function callSpecificModel({
       systemInstruction: { parts: [{ text: systemInstruction }] },
       contents: [{ role: 'user', parts: [{ text: userText }] }],
       generationConfig
-    })
+    }),
+    signal: AbortSignal.timeout(AI_TIMEOUT_MS)
   });
 
   const data = await response.json().catch(() => ({}));

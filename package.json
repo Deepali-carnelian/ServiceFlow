@@ -1,0 +1,14 @@
+{
+  "name": "serviceflow-focus",
+  "version": "7.0.0",
+  "private": true,
+  "description": "A one-screen service follow-up CRM for Denise, with hidden multi-channel intake and an embedded dialer/transcript-to-job workflow.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node scripts/check-syntax.js",
+    "test": "npm run check && node scripts/smoke-test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

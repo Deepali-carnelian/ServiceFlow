@@ -1,211 +1,312 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ServiceFlow — AI Follow-up Dashboard</title>
-  <link rel="stylesheet" href="styles/base.css" />
-  <link rel="stylesheet" href="styles/review-and-forms.css" />
-  <link rel="stylesheet" href="styles/workflow-and-tour.css" />
-  <link rel="stylesheet" href="styles/theme-core.css" />
-  <link rel="stylesheet" href="styles/theme-features.css" />
-  <link rel="stylesheet" href="styles/theme-workflow.css" />
-</head>
-<body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">SF</div>
-        <div>
-          <h1>ServiceFlow</h1>
-          <p>AI powered dashboard</p>
-        </div>
-      </div>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta
+			name="description"
+			content="ServiceFlow — one-screen follow-up tracker for a small commercial refrigeration repair business."
+		/>
+		<title>ServiceFlow — Today</title>
+		<link rel="stylesheet" href="styles/app.css" />
+	</head>
+	<body>
+		<div class="app-shell">
+			<header class="topbar">
+				<div class="brand-wrap">
+					<div class="brand-mark">SF</div>
+					<div>
+						<div class="brand-line">
+							<strong>ServiceFlow</strong>
+						</div>
+						<p>Commercial refrigeration service</p>
+					</div>
+				</div>
+				<div class="top-actions">
+					<span id="automationStatus" class="automation-pill"
+						><span class="status-dot"></span> Automatic intake ready</span
+					>
+					<button id="demoBtn" class="button secondary">▶ Demo</button>
+					<button id="addRequestBtn" class="button primary">
+						+ Add request
+					</button>
+				</div>
+			</header>
 
-      <nav class="nav">
-        <button class="nav-item active" data-view="dashboard"><span>⌂</span> Overview</button>
-        <button class="nav-item" data-view="ai"><span>✦</span> AI Intake</button>
-        <button class="nav-item" data-view="jobs"><span>▦</span> All jobs</button>
-      </nav>
+			<main>
+				<section class="hero-row">
+					<div>
+						<p class="eyebrow">TODAY</p>
+						<h1>Your daily service view</h1>
+						<p class="subtitle">
+							Every open job, the next action, and where it stands — without
+							checking a notebook, inbox, or text thread.
+						</p>
+					</div>
+					<div class="today-date" id="todayDate"></div>
+				</section>
 
-      <div class="sidebar-note">
-        <strong>Denise's Overview view</strong>
-        <p>Capture every request once. Make the next follow-up impossible to forget.</p>
-      </div>
+				<section
+					id="stats"
+					class="stats-grid"
+					aria-label="Today summary"
+				></section>
 
-      <div class="sidebar-actions">
-        <button id="startTour" class="ghost small">Take product tour</button>
-        <button id="resetDemo" class="ghost small">Reset demo data</button>
-      </div>
-    </aside>
+				<section class="workspace-grid">
+					<article class="panel attention-panel" id="attentionPanel">
+						<div class="panel-head">
+							<div>
+								<p class="eyebrow">ACTION LIST</p>
+								<h2>Call / follow up today</h2>
+							</div>
+							<span id="attentionCount" class="count-badge">0</span>
+						</div>
+						<div id="attentionList" class="attention-list"></div>
+					</article>
 
-    <main>
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Commercial operations</p>
-          <h2 id="pageTitle">Operations Overview</h2>
-        </div>
-        <div class="header-actions">
-          <div id="llmStatus" class="llm-badge loading">Checking AI…</div>
-          <button id="openAddModal" class="primary">+ Add request</button>
-        </div>
-      </header>
+					<article class="panel jobs-panel" id="jobsPanel">
+						<div class="panel-head jobs-head">
+							<div>
+								<p class="eyebrow">ALL ACTIVE JOBS</p>
+								<h2>Where every job stands</h2>
+							</div>
+							<div class="search-wrap">
+								<input
+									id="searchInput"
+									type="search"
+									placeholder="Search customer or job…"
+								/>
+							</div>
+						</div>
+						<div id="statusFilters" class="filter-row"></div>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>Customer</th>
+										<th>Problem</th>
+										<th>Status</th>
+										<th>Next action</th>
+										<th>Due</th>
+									</tr>
+								</thead>
+								<tbody id="jobsTable"></tbody>
+							</table>
+						</div>
+					</article>
+				</section>
 
-      <section id="dashboardView" class="view active">
-        <div class="stats-grid">
-          <article class="stat-card"><span class="stat-label">Need follow-up</span><strong id="statDue">0</strong><small>today / overdue</small></article>
-          <article class="stat-card"><span class="stat-label">Open jobs</span><strong id="statOpen">0</strong><small>not completed</small></article>
-          <article class="stat-card"><span class="stat-label">Waiting on quote</span><strong id="statQuote">0</strong><small>customer is waiting</small></article>
-          <article class="stat-card"><span class="stat-label">Open job value</span><strong id="statValue">$0</strong><small>estimated</small></article>
-        </div>
+				<section class="capture-note" id="automationNote">
+					<div>
+						<span class="capture-icon">↳</span>
+						<div>
+							<strong>Requests can arrive automatically.</strong>
+							<p>
+								Email, website forms and SMS are normalized into the same job
+								list behind the scenes. The operator does not manage another
+								inbox.
+							</p>
+						</div>
+					</div>
+					<button id="refreshBtn" class="text-button">Refresh jobs</button>
+				</section>
+			</main>
+		</div>
 
-        <section class="panel attention-panel">
-          <div class="panel-head">
-            <div><p class="eyebrow">Priority queue</p><h3>Call these customers today</h3></div>
-            <div class="legend"><span><i class="dot critical"></i> overdue</span><span><i class="dot today"></i> due today</span></div>
-          </div>
-          <div id="followupList" class="followup-list"></div>
-        </section>
+		<aside id="jobDrawer" class="drawer" aria-hidden="true">
+			<div class="drawer-scrim" data-close-drawer></div>
+			<section
+				class="drawer-panel"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="drawerTitle"
+			>
+				<div class="drawer-head">
+					<div>
+						<p class="eyebrow">JOB</p>
+						<h2 id="drawerTitle">Job details</h2>
+					</div>
+					<button class="icon-button" data-close-drawer aria-label="Close">
+						×
+					</button>
+				</div>
+				<div id="drawerBody"></div>
+			</section>
+		</aside>
 
-        <section class="panel">
-          <div class="panel-head">
-            <div><p class="eyebrow">Pipeline</p><h3>Where every job stands</h3></div>
-          </div>
-          <div id="pipeline" class="pipeline"></div>
-        </section>
-      </section>
+		<div id="addModal" class="modal" aria-hidden="true">
+			<div class="modal-scrim" data-close-modal></div>
+			<form id="addForm" class="modal-card">
+				<div class="modal-head">
+					<div>
+						<p class="eyebrow">QUICK CAPTURE</p>
+						<h2>Add a service request</h2>
+					</div>
+					<button type="button" class="icon-button" data-close-modal>×</button>
+				</div>
+				<p class="form-note">
+					Only capture what Denise needs to avoid losing the request. Details
+					can be added later.
+				</p>
+				<div class="form-grid">
+					<label
+						>Customer name<input name="customer" required autocomplete="name"
+					/></label>
+					<label
+						>Business<input name="company" autocomplete="organization"
+					/></label>
+					<label>Phone<input name="phone" required autocomplete="tel" /></label>
+					<label
+						>Source<select name="source">
+							<option>Phone</option>
+							<option>Text</option>
+							<option>Email</option>
+							<option>Website</option>
+							<option>Referral</option>
+						</select></label
+					>
+					<label class="full"
+						>What is wrong?<textarea
+							name="issue"
+							required
+							rows="3"
+							placeholder="e.g. Walk-in freezer stopped cooling this morning"
+						></textarea>
+					</label>
+				</div>
+				<div class="modal-actions">
+					<button type="button" class="button secondary" data-close-modal>
+						Cancel</button
+					><button class="button primary" type="submit">
+						Add to today's list
+					</button>
+				</div>
+			</form>
+		</div>
 
-      <section id="aiView" class="view">
-        <div class="ai-layout">
-          <section class="panel ai-panel">
-            <div class="panel-head ai-head">
-              <div>
-                <p class="eyebrow">LLM-assisted intake</p>
-                <h3>Turn a messy call, text or email into a job</h3>
-                <p class="subcopy">Paste what Denise received. The LLM extracts the useful fields and suggests urgency; Denise reviews before saving.</p>
-              </div>
-            </div>
+		<div id="callModal" class="modal" aria-hidden="true">
+			<div class="modal-scrim" data-close-call></div>
+			<section
+				class="modal-card call-card"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="callTitle"
+			>
+				<div class="modal-head">
+					<div>
+						<p class="eyebrow">CONNECTED CALL</p>
+						<h2 id="callTitle">Call customer</h2>
+					</div>
+					<button
+						type="button"
+						class="icon-button"
+						data-close-call
+						aria-label="Close"
+					>
+						×
+					</button>
+				</div>
+				<p class="form-note">
+					The call UI stays inside the job workflow. The prototype simulates
+					phone audio, then uses the transcript to update the same job record
+					automatically.
+				</p>
 
-            <div class="ai-body">
-              <div class="demo-row">
-                <span>Try demo:</span>
-                <button class="demo-chip" data-demo="0">Emergency call</button>
-                <button class="demo-chip" data-demo="1">Website form</button>
-                <button class="demo-chip" data-demo="2">Customer text</button>
-              </div>
+				<div id="callDialer" class="call-stage">
+					<div class="dialer-contact">
+						<strong id="callContactName">Customer</strong>
+						<span id="callCompanyName"></span>
+					</div>
+					<input
+						id="dialerNumber"
+						class="dialer-number"
+						aria-label="Phone number"
+					/>
+					<div class="keypad" aria-label="Dial pad">
+						<button type="button" data-key="1">1</button
+						><button type="button" data-key="2">2</button
+						><button type="button" data-key="3">3</button>
+						<button type="button" data-key="4">4</button
+						><button type="button" data-key="5">5</button
+						><button type="button" data-key="6">6</button>
+						<button type="button" data-key="7">7</button
+						><button type="button" data-key="8">8</button
+						><button type="button" data-key="9">9</button>
+						<button type="button" data-key="*">*</button
+						><button type="button" data-key="0">0</button
+						><button type="button" data-key="#">#</button>
+					</div>
+					<button
+						id="startCallBtn"
+						type="button"
+						class="button primary call-primary"
+					>
+						☎ Start demo call
+					</button>
+				</div>
 
-              <label class="field-label">Intake source
-                <select id="aiSource">
-                  <option>Phone</option>
-                  <option>Website</option>
-                  <option>Text</option>
-                  <option>Referral</option>
-                  <option>Repeat customer</option>
-                </select>
-              </label>
+				<div id="callLive" class="call-stage" hidden>
+					<div class="live-call-head">
+						<div>
+							<span class="live-dot"></span><strong>Call in progress</strong>
+						</div>
+						<span id="callTimer">00:00</span>
+					</div>
+					<div
+						id="transcriptBox"
+						class="transcript-box"
+						aria-live="polite"
+					></div>
+					<button
+						id="endCallBtn"
+						type="button"
+						class="button danger call-primary"
+					>
+						End call & update job
+					</button>
+				</div>
 
-              <label class="field-label">Raw request
-                <textarea id="aiInput" rows="9" placeholder="Example: Marco from Northside Pizza called. Their walk-in freezer is completely down..."></textarea>
-              </label>
+				<div id="callSummary" class="call-stage" hidden>
+					<div class="ai-summary-head">
+						<span>✦</span>
+						<div>
+							<p class="eyebrow">TRANSCRIPT → JOB</p>
+							<h3>Job updated automatically</h3>
+						</div>
+					</div>
+					<div id="callSummaryBody" class="call-summary-grid"></div>
+					<p class="call-safe-note">
+						Only facts supported by the transcript are applied. Pricing,
+						diagnoses and appointment promises are never invented.
+					</p>
+					<button
+						id="closeCallSummaryBtn"
+						type="button"
+						class="button primary call-primary"
+					>
+						Back to job
+					</button>
+				</div>
+			</section>
+		</div>
 
-              <div class="ai-actions">
-                <button id="extractAI" class="primary">✦ Extract with AI</button>
-                <span id="aiRunMeta" class="muted"></span>
-              </div>
-            </div>
-          </section>
+		<div id="demoOverlay" class="demo-overlay" aria-hidden="true">
+			<div class="demo-card">
+				<div class="demo-progress">
+					<span id="demoStepLabel">Step 1 of 5</span
+					><button id="demoClose" class="icon-button">×</button>
+				</div>
+				<h3 id="demoTitle"></h3>
+				<p id="demoBody"></p>
+				<div class="demo-tip" id="demoTip"></div>
+				<div class="demo-actions">
+					<button id="demoPrev" class="button secondary">Back</button
+					><button id="demoNext" class="button primary">Next</button>
+				</div>
+			</div>
+		</div>
 
-          <section class="panel result-panel">
-            <div class="panel-head">
-              <div><p class="eyebrow">Human review</p><h3>Structured request</h3></div>
-            </div>
-            <div id="aiResultEmpty" class="empty-state"><strong>No extraction yet.</strong>Choose a demo message or paste a customer request.</div>
-            <div id="aiResult" class="ai-result hidden"></div>
-          </section>
-        </div>
-      </section>
-
-      <section id="jobsView" class="view">
-        <section class="panel">
-          <div class="jobs-toolbar">
-            <div><p class="eyebrow">All requests</p><h3>Lead & job tracker</h3></div>
-            <div class="toolbar-controls">
-              <input id="searchInput" type="search" placeholder="Search customer, company, issue…" />
-              <select id="statusFilter">
-                <option value="">All statuses</option>
-                <option>New</option><option>Quote Needed</option><option>Awaiting Approval</option><option>Scheduled</option><option>Done</option>
-              </select>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Customer</th><th>Issue</th><th>Status</th><th>Last contact</th><th>Next follow-up</th><th>Value</th><th>Actions</th></tr></thead>
-              <tbody id="jobsTableBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-    </main>
-  </div>
-
-  <dialog id="leadModal">
-    <form id="leadForm" class="modal-card" novalidate>
-      <div class="modal-head">
-        <div><p class="eyebrow">Capture it once</p><h3>Add service request</h3><p class="form-hint"><span class="required-star">*</span> Required fields</p></div>
-        <button id="closeLeadModal" type="button" class="icon-btn" aria-label="Close add service request">×</button>
-      </div>
-      <div class="form-grid">
-        <label><span class="field-label-inline">Customer name <span class="required-star">*</span></span><input name="customer" autocomplete="name" placeholder="e.g. Marco Ruiz" aria-describedby="customerError" /><small id="customerError" class="field-error" data-error-for="customer"></small></label>
-        <label>Business<input name="company" autocomplete="organization" placeholder="e.g. Northside Pizza" /></label>
-        <label><span class="field-label-inline">Phone <span class="required-star">*</span></span><input name="phone" inputmode="tel" autocomplete="tel" placeholder="(555) 123-4567" aria-describedby="phoneError" /><small id="phoneError" class="field-error" data-error-for="phone"></small></label>
-        <label>Source<select name="source"><option>Phone</option><option>Website</option><option>Text</option><option>Referral</option><option>Repeat customer</option></select></label>
-        <label>Equipment<input name="equipment" placeholder="Walk-in freezer" /></label>
-        <label>Status<select name="status"><option>New</option><option>Quote Needed</option><option>Awaiting Approval</option><option>Scheduled</option></select></label>
-        <label class="span-2"><span class="field-label-inline">Equipment / issue <span class="required-star">*</span></span><input name="issue" placeholder="Walk-in freezer not holding temperature" aria-describedby="issueError" /><small id="issueError" class="field-error" data-error-for="issue"></small></label>
-        <label>Est. value ($)<input name="value" type="number" min="0" step="50" placeholder="1200" aria-describedby="valueError" /><small id="valueError" class="field-error" data-error-for="value"></small></label>
-        <label>Priority<select name="priority"><option>Normal</option><option>Urgent</option></select></label>
-        <label><span class="field-label-inline">Next follow-up <span class="required-star">*</span></span><input name="nextFollowup" type="date" aria-describedby="nextFollowupError" /><small id="nextFollowupError" class="field-error" data-error-for="nextFollowup"></small></label>
-        <label class="span-2">Notes<textarea name="notes" rows="3" placeholder="Customer said freezer is completely down."></textarea></label>
-      </div>
-      <div class="modal-actions"><button id="cancelLeadModal" type="button" class="ghost">Cancel</button><button type="submit" class="primary">Save request</button></div>
-    </form>
-  </dialog>
-
-  <dialog id="detailModal">
-    <div class="modal-card detail-card">
-      <div class="modal-head"><div><p class="eyebrow">Job details</p><h3 id="detailTitle"></h3></div><button id="closeDetail" class="icon-btn" aria-label="Close">×</button></div>
-      <div id="detailContent"></div>
-    </div>
-  </dialog>
-
-
-  <!-- Tour backdrop and card are separate siblings so a highlighted page section
-       can sit above the backdrop without ever covering the tour controls. -->
-  <div id="tourOverlay" class="tour-overlay hidden" aria-hidden="true"></div>
-
-  <div id="tourCard" class="tour-card hidden" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
-    <div class="tour-card-top">
-      <div>
-        <p class="eyebrow">Quick product tour</p>
-        <h3 id="tourTitle">Welcome to ServiceFlow</h3>
-      </div>
-      <span id="tourStep" class="tour-step">1 of 6</span>
-    </div>
-
-    <p id="tourText" class="tour-text"></p>
-
-    <div id="tourProgress" class="tour-progress" aria-hidden="true"></div>
-
-    <div class="tour-actions">
-      <button id="tourSkip" type="button" class="ghost">Skip tour</button>
-      <div class="tour-nav-actions">
-        <button id="tourBack" type="button" class="ghost">Back</button>
-        <button id="tourNext" type="button" class="primary">Next</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" aria-live="polite"></div>
-  <script type="module" src="js/app.mjs"></script>
-</body>
+		<div id="toast" class="toast" role="status" aria-live="polite"></div>
+		<script type="module" src="js/app.mjs"></script>
+	</body>
 </html>
