@@ -24,7 +24,7 @@ That gives the system:
 
 without asking Denise to administer a traditional sales CRM.
 
-## Deliberately excluded
+## Upcoming modules
 
 - invoicing/accounting,
 - delivery milestones,
@@ -34,7 +34,3 @@ without asking Denise to administer a traditional sales CRM.
 - separate inbox navigation,
 - separate calls navigation,
 - operations-console UI.
-
-## FDE tradeoff
-
-The implementation has integration and reliability depth where it removes manual work, while the customer's interaction model remains small. Complexity belongs behind the workflow rather than in front of Denise.

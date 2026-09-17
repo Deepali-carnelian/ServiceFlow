@@ -54,7 +54,7 @@ Only transcript-supported facts may update:
 
 It never invents price, diagnosis, technician availability or appointment promises.
 
-## Deliberately out of scope
+## Future scope
 
 - invoicing and accounting,
 - route optimization,
@@ -91,7 +91,3 @@ The server starts on `http://localhost:3000`. If that port is occupied it tries 
 ```bash
 npm test
 ```
-
-The smoke test checks the one-screen scope, embedded dialer/transcript summarization, job-state workflow, automated website/SMS intake, duplicate protection, email parsing and IMAP/SMTP connector architecture.
-
-See `DEMO_SCRIPT.md`, `FDE_ARCHITECTURE.md` and `INTEGRATIONS.md` before the interview.
