@@ -1,72 +1,21 @@
 # Customer Persona — Denise
 
-## Role
-Owner and operator of a small commercial refrigeration repair company.
-
 ## Business
-The company repairs walk-in coolers, freezers, ice machines and other commercial refrigeration equipment for restaurants, grocery stores and warehouses.
 
-## Team
-- Denise manages customer requests and day-to-day operations.
-- Her husband handles bookkeeping part-time.
-- Four technicians work in the field.
+Denise owns a small commercial refrigeration repair company. She runs the office, her husband handles books part time, and four technicians work in the field. Roughly 15–20 new requests arrive each week plus repeat work.
 
-## Current Workflow
-Customer requests arrive through several channels:
+## Current workflow
 
-- Phone calls
-- Website forms
-- Text messages
-- Repeat customers
-- Referrals
-- Handwritten notes
+Requests are scattered across office calls forwarded to her cell, website-form emails, text messages, repeat customers/referrals and a notebook. The problem is not request volume; it is **lost follow-up context**.
 
-Denise currently tracks much of this manually using her phone, email and a notebook.
+## Explicit customer requirement
 
-## Main Problem
-The problem is not lack of demand. The problem is that customer requests and follow-ups are scattered across multiple places.
+> Who do I need to call today, and where is each job at?
 
-This causes:
+The primary screen therefore shows the next customer action due now and the current state of every open job.
 
-- New leads to be missed.
-- Quotes to be forgotten.
-- Customers to wait too long for responses.
-- Approved jobs to remain unscheduled.
-- Denise to lose visibility into open work.
+## Scope decision
 
-A missed follow-up can directly result in lost revenue.
+The initial product should not become a full field-service management suite. Route optimization, invoicing, accounting, inventory, detailed service milestones and broad dispatch are later possibilities only if discovery creates a reason to build them.
 
-## Primary Goal
-
-Denise wants to open one dashboard every morning and immediately understand:
-
-1. Who needs to be contacted today?
-2. Which customers are waiting for a quote?
-3. Which quotes are waiting for approval?
-4. Which jobs need scheduling?
-5. Where does every open job currently stand?
-
-## Needs
-
-- Simple request capture.
-- One place for all active jobs.
-- Clear follow-up reminders.
-- Easy job-status tracking.
-- Minimal administrative overhead.
-- Human review before AI-generated information becomes a job.
-
-## Product Principle
-
-ServiceFlow should reduce Denise's dependency on memory.
-
-The goal is:
-
-**Capture every request once, then make the next action impossible to forget.**
-
-## What Denise Does Not Need Right Now
-
-The initial product does not need to become a full field-service management platform.
-
-Technician route optimisation, invoicing, accounting and advanced scheduling can come later.
-
-The immediate priority is preventing customer requests and follow-ups from falling through the cracks.
+Multiple channels can be automated behind the screen because they directly reduce lead leakage. Calling can be embedded in the job because calls change job state. Neither requires Denise to learn another standalone module.

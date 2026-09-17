@@ -2,6 +2,7 @@ const {
   GEMINI_API_KEY,
   ENV_MODEL,
   MODEL_CACHE_MS,
+  AI_TIMEOUT_MS,
   geminiConfigured
 } = require('../config/env');
 
@@ -35,7 +36,8 @@ async function fetchAvailableModels(forceRefresh = false) {
     if (pageToken) url.searchParams.set('pageToken', pageToken);
 
     const response = await fetch(url, {
-      headers: { 'x-goog-api-key': GEMINI_API_KEY }
+      headers: { 'x-goog-api-key': GEMINI_API_KEY },
+      signal: AbortSignal.timeout(AI_TIMEOUT_MS)
     });
     const data = await response.json().catch(() => ({}));
 

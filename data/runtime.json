@@ -1,0 +1,328 @@
+{
+  "inbound": [],
+  "events": [
+    {
+      "id": "evt-2e19b5fb3931bc51",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 9 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:40:56.227Z"
+    },
+    {
+      "id": "evt-29a33004ee74925b",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 9 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:40:54.158Z"
+    },
+    {
+      "id": "evt-4804e8c73bf75103",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 9 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:40:52.910Z"
+    },
+    {
+      "id": "evt-d516e079fcaa47b9",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 9 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:40:48.406Z"
+    },
+    {
+      "id": "evt-0c9fc5e266df0613",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 9 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:40:40.051Z"
+    },
+    {
+      "id": "evt-a4a4c8cb13cb83a3",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 9 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:34:11.092Z"
+    },
+    {
+      "id": "evt-4cb6abdd985981d1",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 8 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:15:51.116Z"
+    },
+    {
+      "id": "evt-0ced489b5eecce48",
+      "source": "Jobs",
+      "level": "info",
+      "type": "persist",
+      "message": "Persisted 8 service jobs.",
+      "itemId": "",
+      "details": {},
+      "at": "2026-09-17T22:14:24.278Z"
+    }
+  ],
+  "health": {},
+  "crmJobs": [
+    {
+      "id": "ee8f20b0-bb30-40f6-a2b7-f2808a8381c0",
+      "customer": "John Doe",
+      "company": "liberty piza slices",
+      "phone": "2446876",
+      "source": "Phone",
+      "issue": "54\n586",
+      "status": "New",
+      "priority": "Normal",
+      "createdAt": "2026-09-17",
+      "lastContact": "2026-09-17",
+      "nextFollowup": "2026-09-17",
+      "nextAction": "Call customer today",
+      "activities": [
+        {
+          "id": "950de4b6-3080-4dbb-9cc2-9705cffd0f22",
+          "title": "Request captured",
+          "detail": "Phone request added manually.",
+          "at": "2026-09-17T22:34:11.078Z"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "customer": "Luis Mendoza",
+      "company": "Casa Verde Restaurant",
+      "phone": "(555) 014-8821",
+      "source": "Phone",
+      "issue": "Walk-in freezer down; box temperature climbing rapidly",
+      "status": "Scheduled",
+      "priority": "Urgent",
+      "createdAt": "2026-09-14",
+      "lastContact": "2026-09-17",
+      "nextFollowup": "2026-09-18",
+      "nextAction": "Service visit Sep 18 at 09:00",
+      "notes": "Friday emergency call. High risk of lost product.",
+      "id": "demo-1",
+      "activities": [
+        {
+          "id": "3d899a56-33cb-499d-9ed0-6458cb640edb",
+          "title": "Service scheduled",
+          "detail": "Sep 18 at 09:00.",
+          "at": "2026-09-17T22:40:56.215Z"
+        },
+        {
+          "id": "8cbacc2a-9ba0-49ac-a7f0-3672c6f6ffc2",
+          "title": "Customer approved quote",
+          "detail": "Job now needs scheduling.",
+          "at": "2026-09-17T22:40:54.146Z"
+        },
+        {
+          "id": "6a135a6d-e163-4597-a13a-40065361dcb8",
+          "title": "Quote sent",
+          "detail": "Waiting for customer approval.",
+          "at": "2026-09-17T22:40:52.901Z"
+        },
+        {
+          "id": "e4d0b17f-f25a-48a6-a815-e244ef23ad93",
+          "title": "Job details updated",
+          "detail": "Updated issue.",
+          "at": "2026-09-17T22:40:48.386Z"
+        },
+        {
+          "id": "8d45ec23-9ce6-4788-be6f-c6f9c8c16ce6",
+          "title": "Request captured",
+          "detail": "Phone request added to ServiceFlow.",
+          "at": "2026-09-14T04:30:00.000Z"
+        }
+      ],
+      "appointment": "2026-09-18T09:00:00"
+    },
+    {
+      "customer": "Rachel Kim",
+      "company": "Green Basket Market",
+      "phone": "(555) 013-2198",
+      "source": "Email",
+      "issue": "Produce cooler cycling warm every few hours",
+      "status": "Waiting on Yes",
+      "priority": "Normal",
+      "createdAt": "2026-09-13",
+      "lastContact": "2026-09-15",
+      "nextFollowup": "2026-09-17",
+      "nextAction": "Follow up on quote",
+      "notes": "Quote sent. Waiting for store manager approval.",
+      "id": "demo-2",
+      "activities": [
+        {
+          "id": "9c3b6c8b-0f23-4116-9ae5-257e88d19cd3",
+          "title": "Request captured",
+          "detail": "Email request added to ServiceFlow.",
+          "at": "2026-09-13T04:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "customer": "Sam Patel",
+      "company": "North Dock Warehouse",
+      "phone": "(555) 010-4387",
+      "source": "SMS",
+      "issue": "Commercial ice machine leaking onto prep area",
+      "status": "New",
+      "priority": "Normal",
+      "createdAt": "2026-09-16",
+      "lastContact": "2026-09-16",
+      "nextFollowup": "2026-09-17",
+      "nextAction": "Call and confirm service details",
+      "notes": "Repeat customer. Asked for earliest diagnosis.",
+      "id": "demo-3",
+      "activities": [
+        {
+          "id": "e74cc67d-5bec-4a4f-8112-96b482cb8051",
+          "title": "Request captured",
+          "detail": "SMS request added to ServiceFlow.",
+          "at": "2026-09-16T04:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "customer": "Maya Brooks",
+      "company": "Pine & Stone Bistro",
+      "phone": "(555) 019-6614",
+      "source": "Referral",
+      "issue": "Reach-in refrigerator making loud compressor noise",
+      "status": "Scheduled",
+      "priority": "Normal",
+      "createdAt": "2026-09-12",
+      "lastContact": "2026-09-16",
+      "nextFollowup": "2026-09-18",
+      "nextAction": "Service visit tomorrow at 9:00 AM",
+      "appointment": "2026-09-18T09:00:00",
+      "notes": "Manager will meet technician at back entrance.",
+      "id": "demo-4",
+      "activities": [
+        {
+          "id": "f915e0a9-7735-4a7f-84d9-6a370fe413bf",
+          "title": "Request captured",
+          "detail": "Referral request added to ServiceFlow.",
+          "at": "2026-09-12T04:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "customer": "Angela Morris",
+      "company": "Eastside Grocery",
+      "phone": "(555) 018-4402",
+      "source": "Phone",
+      "issue": "Frozen display case temperature rising",
+      "status": "Waiting on Quote",
+      "priority": "Urgent",
+      "createdAt": "2026-09-15",
+      "lastContact": "2026-09-15",
+      "nextFollowup": "2026-09-16",
+      "nextAction": "Prepare and send estimate",
+      "notes": "Customer is concerned about product loss.",
+      "id": "demo-5",
+      "activities": [
+        {
+          "id": "7c862876-ac5c-4386-997a-fcaa886051a9",
+          "title": "Request captured",
+          "detail": "Phone request added to ServiceFlow.",
+          "at": "2026-09-15T04:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "customer": "Jordan Lee",
+      "company": "Harbor Fish Market",
+      "phone": "(555) 011-3350",
+      "source": "Website",
+      "issue": "Walk-in cooler door icing and not sealing",
+      "status": "Waiting on Yes",
+      "priority": "Normal",
+      "createdAt": "2026-09-11",
+      "lastContact": "2026-09-14",
+      "nextFollowup": "2026-09-16",
+      "nextAction": "Call about estimate",
+      "notes": "Estimate sent. No reply yet.",
+      "id": "demo-6",
+      "activities": [
+        {
+          "id": "3764945c-a18a-47c3-91f8-41a85dd74044",
+          "title": "Request captured",
+          "detail": "Website request added to ServiceFlow.",
+          "at": "2026-09-11T04:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "customer": "Nina Carter",
+      "company": "West End Bakery",
+      "phone": "(555) 016-7820",
+      "source": "SMS",
+      "issue": "Retarder showing intermittent high-temperature alarm",
+      "status": "New",
+      "priority": "Normal",
+      "createdAt": "2026-09-17",
+      "lastContact": "2026-09-17",
+      "nextFollowup": "2026-09-18",
+      "nextAction": "Review photo and call customer",
+      "notes": "Customer sent a photo of the controller alarm.",
+      "id": "demo-7",
+      "activities": [
+        {
+          "id": "8b0cae0e-0e4d-49b9-b209-caf6b57cc671",
+          "title": "Request captured",
+          "detail": "SMS request added to ServiceFlow.",
+          "at": "2026-09-17T04:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "customer": "Omar Haddad",
+      "company": "Central Deli",
+      "phone": "(555) 011-0409",
+      "source": "Phone",
+      "issue": "Quote approved for undercounter cooler repair",
+      "status": "Scheduled",
+      "priority": "Normal",
+      "createdAt": "2026-09-14",
+      "lastContact": "2026-09-17",
+      "nextFollowup": "2026-09-18",
+      "nextAction": "Service visit Sep 18 at 09:00",
+      "notes": "Customer approved the quote this morning.",
+      "id": "demo-8",
+      "activities": [
+        {
+          "id": "ddb08102-9a69-4968-aa42-4ba801ffece5",
+          "title": "Service scheduled",
+          "detail": "Sep 18 at 09:00.",
+          "at": "2026-09-17T22:15:51.102Z"
+        },
+        {
+          "id": "1275513e-e865-4e56-9b00-3e0d40168ccd",
+          "title": "Request captured",
+          "detail": "Phone request added to ServiceFlow.",
+          "at": "2026-09-14T04:30:00.000Z"
+        }
+      ],
+      "appointment": "2026-09-18T09:00:00"
+    }
+  ]
+}
