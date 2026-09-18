@@ -2,7 +2,7 @@ import { getHealth, getCrmState, persistCrmJobs, getAutomatedInbox, summarizeCal
 
 const STATUS_ORDER = ['New','Waiting on Quote','Waiting on Yes','Needs Scheduling','Scheduled','Done'];
 const ACTIVE_FILTERS = ['All','New','Waiting on Quote','Waiting on Yes','Needs Scheduling','Scheduled'];
-const state = { jobs: [], filter: 'All', search: '', selectedJobId: '', demoStep: 0, activeCallJobId: '', callStartedAt: 0, callTimer: null, transcriptTimer: null, transcript: '' };
+const state = { jobs: [], filter: 'All', search: '', selectedJobId: '', demoStep: 0, activeCallJobId: '', demoJobId: '', callStartedAt: 0, callTimer: null, transcriptTimer: null, transcript: '' };
 
 const today = () => new Date().toISOString().slice(0,10);
 const addDays = (n, base = new Date()) => { const d=new Date(base); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
@@ -95,7 +95,7 @@ async function refreshAutomationStatus(){
   try{
     await getHealth(); const data=await getAutomatedInbox().catch(()=>null);
     const configured = data?.channels?.gmail?.configured;
-    pill.innerHTML=`<span class="status-dot"></span>${configured?'Email + web/SMS intake ready':'Web/SMS intake ready · email optional'}`;
+    pill.innerHTML=`<span class="status-dot"></span>${configured?'Email connector + webhook intake ready':'Webhook intake ready · email optional'}`;
   }catch{ pill.innerHTML='<span class="status-dot"></span>Local demo mode'; }
 }
 
@@ -155,7 +155,7 @@ function renderDrawer(){
       <div class="detail-box"><span>PRIORITY</span><strong>${esc(job.priority)}</strong></div>
     </div>
     <div class="next-action-box"><span>NEXT ACTION</span><strong>${esc(job.nextAction)}</strong></div>
-    <div class="drawer-section"><h4>Update the job</h4><div class="action-stack">${actionButtons}</div>${job.status==='Needs Scheduling'?scheduleMarkup(job):''}</div>
+    <div class="drawer-section" id="jobActionsSection"><h4>Update the job</h4><div class="action-stack">${actionButtons}</div>${job.status==='Needs Scheduling'?scheduleMarkup(job):''}</div>
     <div class="drawer-section"><h4>History</h4>${historyMarkup(job)}</div>
   </div>`;
 }
@@ -214,7 +214,7 @@ async function saveEditedJob(form){
   toast(changed.length?'Job details saved.':'No changes to save.');
 }
 function actionMarkup(job){
-  const call=`<button class="button secondary" data-call-job="${job.id}">☎ Call customer</button>`;
+  const call=`<button class="button secondary" id="callCustomerButton" data-call-job="${job.id}">☎ Call customer</button>`;
   if(job.status==='New') return `${call}<button class="button primary" data-action="need-quote" data-id="${job.id}">Needs a quote</button>`;
   if(job.status==='Waiting on Quote') return `${call}<button class="button primary" data-action="quote-sent" data-id="${job.id}">Quote sent</button>`;
   if(job.status==='Waiting on Yes') return `${call}<button class="button primary" data-action="approved" data-id="${job.id}">Customer said yes</button>`;
@@ -348,22 +348,49 @@ async function addRequest(form){
 }
 
 const DEMO_STEPS=[
-  {title:'1. Start with the core customer need',body:'One operational screen shows what needs attention today and where every active job stands.',tip:'The left side is the action list. The right side is the complete active-job picture.',target:'#attentionPanel'},
-  {title:'2. Multiple lead sources collapse into one list',body:'Website forms, email and SMS are captured behind the scenes, normalized and deduplicated into the same job model.',tip:'The operator does not need a second inbox. A new digital request simply appears here with its source.',target:'#automationNote'},
-  {title:'3. Calling stays inside the job',body:'Open a job and use Call customer. The dialer is embedded in the record instead of becoming a separate call-center module.',tip:'For the demo, open an urgent job and click Call customer.',target:'#jobsPanel'},
-  {title:'4. Transcript updates the lead automatically',body:'After the call, Gemini extracts only supported facts from the transcript and updates status, priority, next action and follow-up on the same job.',tip:'The phone audio is simulated in this prototype; transcript-to-job processing is real and falls back safely if Gemini is unavailable.',target:'#jobsPanel'},
-  {title:'5. Record outcomes, not administration',body:'Quote sent, customer approved and service scheduled are simple operational outcomes. ServiceFlow calculates the next follow-up.',tip:'No invoicing, route optimization, delivery tracking or separate CRM navigation is exposed.',target:'#attentionPanel'},
-  {title:'6. The scope stays deliberate',body:'The integrations and AI reduce manual capture, while the customer experience remains focused on one operational screen.',tip:'Technical depth sits behind the workflow instead of increasing the operator’s onboarding burden.',target:'.hero-row'}
-]
-function startDemo(){ state.demoStep=0; document.getElementById('demoOverlay').setAttribute('aria-hidden','false'); renderDemo(); }
+  {title:"1. Start with today's priorities",body:'One operational view shows what needs attention today and where every active job stands.',tip:'Urgent, overdue and due-today follow-ups are surfaced first so nothing gets missed.',target:'#attentionPanel',action:'main'},
+  {title:'2. Capture requests from multiple sources',body:'Website forms, email and SMS are normalized behind the scenes into the same job model.',tip:'New digital requests appear in the same list with their source attached; there is no second inbox to manage.',target:'#automationNote',action:'main'},
+  {title:'3. Keep every active job visible',body:'Each request has a clear status, next action and follow-up date.',tip:'The active-job table is the complete operational picture, while the action list surfaces what needs attention now.',target:'#jobsPanel',action:'main'},
+  {title:'4. Call directly from the job',body:'Calling stays embedded in the job instead of becoming a separate call-center product.',tip:'A job drawer opens automatically for this step. Use Call customer to see the keypad.',target:'#callCustomerButton',action:'drawer'},
+  {title:'5. Turn the conversation into structured updates',body:'The demo call produces a transcript that is processed by Gemini when configured, with a deterministic JavaScript fallback otherwise.',tip:'Only transcript-supported facts can update status, priority, next action and follow-up.',target:'#transcriptBox',action:'transcript'},
+  {title:'6. Record outcomes, not administration',body:'Quote sent, customer approved and service scheduled are lightweight operational outcomes on the same job.',tip:'The workflow stays focused: no invoicing, route optimization, delivery tracking or separate CRM navigation.',target:'#jobActionsSection',action:'drawer'},
+  {title:'7. Return to one operational view',body:'All intake and call automation feeds back into the same daily workspace.',tip:'Technical complexity stays behind the workflow instead of increasing onboarding burden.',target:'#mainWorkspace',action:'main'}
+];
+function demoJobId(){
+  const current=state.demoJobId && state.jobs.find(j=>j.id===state.demoJobId&&j.status!=='Done');
+  if(current)return current.id;
+  const preferred=state.jobs.find(j=>j.status==='Waiting on Yes')||state.jobs.find(j=>j.priority==='Urgent'&&j.status!=='Done')||state.jobs.find(j=>j.status!=='Done');
+  state.demoJobId=preferred?.id||'';
+  return state.demoJobId;
+}
+function prepareDemoStep(step){
+  const id=demoJobId();
+  if(step.action==='main'){
+    if(document.getElementById('callModal').getAttribute('aria-hidden')==='false') closeCall();
+    if(document.getElementById('jobDrawer').getAttribute('aria-hidden')==='false') closeDrawer();
+    return;
+  }
+  if(!id)return;
+  if(step.action==='drawer'){
+    if(document.getElementById('callModal').getAttribute('aria-hidden')==='false') closeCall();
+    openDrawer(id);
+    return;
+  }
+  if(step.action==='transcript'){
+    openCall(id);
+    if(document.getElementById('callLive').hidden) startCall();
+  }
+}
+function startDemo(){ state.demoStep=0; state.demoJobId=''; document.getElementById('demoOverlay').setAttribute('aria-hidden','false'); renderDemo(); }
 function renderDemo(){
   document.querySelectorAll('.demo-highlight').forEach(el=>el.classList.remove('demo-highlight'));
   const step=DEMO_STEPS[state.demoStep];
+  prepareDemoStep(step);
   document.getElementById('demoStepLabel').textContent=`Step ${state.demoStep+1} of ${DEMO_STEPS.length}`;
   document.getElementById('demoTitle').textContent=step.title; document.getElementById('demoBody').textContent=step.body; document.getElementById('demoTip').textContent=step.tip;
   document.getElementById('demoPrev').style.visibility=state.demoStep===0?'hidden':'visible';
   document.getElementById('demoNext').textContent=state.demoStep===DEMO_STEPS.length-1?'Finish':'Next';
-  const target=document.querySelector(step.target); if(target){target.classList.add('demo-highlight');target.scrollIntoView({behavior:'smooth',block:'center'});}
+  const target=document.querySelector(step.target); if(target){target.classList.add('demo-highlight');setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'center'}),40);}
 }
 function closeDemo(){ document.getElementById('demoOverlay').setAttribute('aria-hidden','true');document.querySelectorAll('.demo-highlight').forEach(el=>el.classList.remove('demo-highlight')); }
 

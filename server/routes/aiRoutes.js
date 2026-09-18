@@ -38,7 +38,7 @@ function localCallSummary(transcript, currentJob = {}) {
   if (approved) suggestedStatus = 'Needs Scheduling';
   else if (asksQuote && ['New','Waiting on Quote'].includes(currentStatus)) suggestedStatus = 'Waiting on Quote';
   else if (currentStatus === 'Waiting on Yes') suggestedStatus = 'Waiting on Yes';
-  if (exactAppointment && currentStatus === 'Needs Scheduling') suggestedStatus = 'Needs Scheduling'; // exact time still requires Denise to explicitly schedule in the UI.
+  if (exactAppointment && currentStatus === 'Needs Scheduling') suggestedStatus = 'Needs Scheduling'; // exact time still requires an explicit scheduling action in the UI.
 
   let nextAction = 'Follow up tomorrow';
   if (suggestedStatus === 'Waiting on Quote') nextAction = 'Prepare / send quote';
@@ -48,7 +48,7 @@ function localCallSummary(transcript, currentJob = {}) {
   else if (urgent) nextAction = 'Review request and act today';
   else nextAction = 'Review job';
 
-  const customerLines = text.split(/\r?\n/).filter(line => !/^denise\s*:/i.test(line)).map(line => line.replace(/^[^:]{1,80}:\s*/, '')).filter(Boolean);
+  const customerLines = text.split(/\r?\n/).filter(line => !/^(denise|service team|agent|dispatcher|operator|technician)\s*:/i.test(line)).map(line => line.replace(/^[^:]{1,80}:\s*/, '')).filter(Boolean);
   const summary = clean(customerLines.slice(-2).join(' '), 240) || 'Customer call completed and recorded.';
   return {
     summary,

@@ -1,4 +1,4 @@
-#  Architecture
+# Architecture
 
 ## Design principle
 
@@ -10,20 +10,21 @@ SMS ────────── webhook ─┼──> Intake normalizer ─�
 Email ───────── IMAP ───┤         │                       │
 Manual request ─────────┘         ├─ dedupe                ├─ current state
                                   ├─ Gemini/fallback       ├─ next action
-                                  └─ customer match        └─ follow-up date
+                                  ├─ customer match        └─ follow-up date
+                                  └─ follow-up match
 
-TODAY screen ──> Job drawer ──> Embedded dialer ──> transcript
-                                                  │
-                                                  ▼
-                                        Gemini/fallback summary
-                                                  │
-                                                  ▼
-                                        update SAME job record
+TODAY screen ──> Job drawer ──> Embedded demo dialer ──> transcript
+                                                       │
+                                                       ▼
+                                             Gemini/fallback summary
+                                                       │
+                                                       ▼
+                                             update SAME job record
 ```
 
 ## Canonical job model
 
-- customer / company / phone,
+- customer / company / phone / email,
 - source,
 - issue,
 - priority,
@@ -37,20 +38,19 @@ TODAY screen ──> Job drawer ──> Embedded dialer ──> transcript
 
 `New → Waiting on Quote → Waiting on Yes → Needs Scheduling → Scheduled → Done`
 
+## Reliability choices
+
+- Duplicate webhook/email/SMS delivery is idempotent by source ID.
+- Explicit follow-up messages are merged into an existing open job only when the customer identity matches and there is exactly one candidate open job; ambiguous cases create a new record instead of guessing.
+- Gemini unavailable or invalid → deterministic JavaScript fallback.
+- Lower-confidence but plausible service request → visible as `New` with a review next action.
+- Email not configured → website/SMS/manual paths remain usable.
+- Port 3000 occupied → server tries subsequent ports.
+
 ## Call-transcript behavior
 
-The dialer is embedded in the job. Phone audio is simulated for the prototype; transcript processing is an actual server endpoint. If Gemini is configured, the server asks Gemini for structured call facts. If Gemini is unavailable, deterministic JavaScript rules keep the demo functional.
+The keypad/dialer is embedded in the job. Telephone audio is simulated for the prototype; transcript processing is a real server endpoint. Transcript analysis cannot silently mark work complete, move a job backward, or invent a price, diagnosis, technician availability or appointment.
 
-The transcript may update the job only when supported by the conversation. The system does not silently mark a job done, invent a diagnosis, price, appointment or technician promise.
+## Production hardening
 
-## Intake failure behavior
-
-- Gemini unavailable → deterministic parser fallback.
-- duplicate webhook/email/SMS → idempotent return, no second job.
-- email not configured → website/SMS/manual flows still work.
-- lower-confidence but plausible service request → surface it as New with a review next action.
-- port 3000 occupied → try following ports.
-
-## Production follow-ups
-
-For production I would add authentication, a transactional database, verified Twilio signatures, secrets management, durable background jobs, observability and a real telephony provider for audio/recording/transcription. I would not add broader customer-facing modules until discovery justified them.
+A production deployment would add authentication/authorization, a transactional database, secrets management, verified Twilio signatures, durable background queues, observability and a real telephony provider. Those are deployment concerns rather than additional customer-facing modules.

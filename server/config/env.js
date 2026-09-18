@@ -43,7 +43,7 @@ const AI_TIMEOUT_MS = number('AI_TIMEOUT_MS', 20_000);
 const AUTO_CREATE_LEADS = bool('AUTO_CREATE_LEADS', true);
 const AUTOMATION_CLIENT_POLL_MS = Math.max(5_000, number('AUTOMATION_CLIENT_POLL_MS', 15_000));
 const AUTO_ACKNOWLEDGE_SMS = bool('AUTO_ACKNOWLEDGE_SMS', true);
-const SAFE_ACK_TEXT = (process.env.SAFE_ACK_TEXT || "Thanks for contacting ServiceFlow Refrigeration. We've received your request and added it to our service queue. If this is an emergency involving product loss, please call our office.").trim();
+const SAFE_ACK_TEXT = (process.env.SAFE_ACK_TEXT || "Thanks for contacting our service team. We've received your request and added it to the service queue. If this is an emergency involving product loss, please call the office.").trim();
 const WEBSITE_WEBHOOK_SECRET = (process.env.WEBSITE_WEBHOOK_SECRET || '').trim();
 
 // Gmail / generic mailbox integration without Google Cloud.
