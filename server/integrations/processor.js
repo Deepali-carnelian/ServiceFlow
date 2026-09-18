@@ -106,8 +106,58 @@ function sameCustomer(job, analysis) {
     (phone.length >= 7 && normalizePhone(job.phone || '') === phone)
   );
 }
+
+function looksLikeFollowUp(inbound = {}) {
+  const text = `${inbound.subject || ''}
+${inbound.body || ''}`.toLowerCase();
+  return /^(re|fw|fwd):/i.test(String(inbound.subject || '').trim()) ||
+    /\b(follow(?:ing)? up|checking in|status update|any update|quote|estimate|approved|approval|go ahead|proceed|schedule|appointment|when can|still waiting|same issue|same problem)\b/i.test(text);
+}
+function findOpenFollowUpJob(existingJobs, inbound, analysis) {
+  if (!looksLikeFollowUp(inbound)) return null;
+  const matches = existingJobs.filter(job => job.status !== 'Done' && sameCustomer(job, analysis));
+  return matches.length === 1 ? matches[0] : null;
+}
+function applyInboundFollowUp(existing, inbound, analysis) {
+  const now = new Date();
+  const text = `${inbound.subject || ''}
+${inbound.body || ''}`.toLowerCase();
+  let status = existing.status || 'New';
+  let nextAction = existing.nextAction || 'Review job';
+  let followupDays = Math.max(0, Number(analysis.suggestedFollowupDays || 0));
+
+  if (/\b(approved|go ahead|proceed|quote is approved|estimate is approved)\b/i.test(text) && ['Waiting on Yes','Waiting on Quote','New'].includes(status)) {
+    status = 'Needs Scheduling';
+    nextAction = 'Choose service date';
+    followupDays = 0;
+  } else if (/\b(quote|estimate|price|cost)\b/i.test(text) && status === 'New') {
+    status = 'Waiting on Quote';
+    nextAction = 'Prepare / send quote';
+    followupDays = 0;
+  }
+
+  const activity = {
+    id: `act-${stableId(`${inbound.externalId}:followup`)}`,
+    type: 'automation',
+    title: `${inbound.source || 'Inbound'} follow-up matched to open job`,
+    detail: `${sanitizeText(analysis.summary || inbound.subject || inbound.body, 260)} AI confidence: ${Math.round(Number(analysis.confidence || 0) * 100)}%.`,
+    at: now.toISOString()
+  };
+
+  return upsertCrmJob({
+    ...existing,
+    lastContact: now.toISOString().slice(0, 10),
+    nextFollowup: addDaysIso(followupDays, now),
+    nextAction,
+    status,
+    priority: analysis.priority === 'Urgent' ? 'Urgent' : existing.priority,
+    activities: [activity, ...(Array.isArray(existing.activities) ? existing.activities : [])]
+  });
+}
 function buildAutomatedCrmJob(inbound, analysis) {
   const existingJobs = listCrmJobs();
+  const followUpJob = findOpenFollowUpJob(existingJobs, inbound, analysis);
+  if (followUpJob) return applyInboundFollowUp(followUpJob, inbound, analysis);
   const matched = existingJobs.find(job => sameCustomer(job, analysis)) || null;
   const received = new Date(inbound.receivedAt || Date.now());
   const safeReceived = Number.isNaN(received.getTime()) ? new Date() : received;
@@ -172,9 +222,8 @@ async function processInbound(rawInbound) {
   const analysis = analysed.result;
   const identityPresent = Boolean(analysis.customer || analysis.company || analysis.phone || analysis.email);
   const serviceSignal = /\b(freezer|cooler|refrigerat(?:or|ion|ed|ing)?|fridge|ice machine|display case|prep cooler|compressor|temperature|not cooling|leak|repair|service request|quote|estimate)\b/i.test(`${inbound.subject} ${inbound.body}`);
-  // If a message has a service signal and a usable identity, never hide it from Denise.
-  // Lower-confidence extraction is still captured as a New job with a review action
-  // instead of disappearing into a separate queue she has to manage.
+  // If a message has a service signal and a usable identity, keep it visible in the main workflow.
+  // Lower-confidence extraction is captured as a New job with a review action rather than disappearing into a separate queue.
   const captureReady = Boolean(identityPresent && analysis.issue && serviceSignal);
   const reviewNeeded = captureReady && analysis.confidence < 0.6;
 
@@ -209,4 +258,4 @@ async function processInbound(rawInbound) {
   return item;
 }
 
-module.exports = { processInbound, analyseInbound, stableId, customerKey, buildAutomatedCrmJob };
+module.exports = { processInbound, analyseInbound, stableId, customerKey, buildAutomatedCrmJob, looksLikeFollowUp, findOpenFollowUpJob };

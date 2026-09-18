@@ -1,14 +1,15 @@
 # Optional Automated Intake
 
-These integrations are **supporting infrastructure**, not additional Denise-facing modules.
+These integrations are supporting infrastructure. The operator still works from the same service-job screen.
 
-## Gmail / generic email — no Google Cloud project
+## Gmail / generic email — no Google Cloud project required
 
-The prototype can poll a mailbox using IMAP and optionally send a safe acknowledgement using SMTP.
+The prototype can poll a mailbox through IMAP and optionally send a generic acknowledgement through SMTP.
 
-For Gmail, enable 2-Step Verification and create a Google App Password. Do not use your normal Gmail password.
+For Gmail, enable 2-Step Verification and create a Google App Password. Do not use the normal account password.
 
-Copy `.env.example` to `.env` and set:
+1. Copy `.env.example` to `.env`.
+2. Set:
 
 ```env
 EMAIL_USER=your-demo-mailbox@gmail.com
@@ -19,7 +20,7 @@ IMAP_SECURE=true
 EMAIL_POLL_SECONDS=60
 ```
 
-Leave `EMAIL_AUTO_ACKNOWLEDGE=false` unless you deliberately want the prototype to send a generic receipt acknowledgement.
+Keep `EMAIL_AUTO_ACKNOWLEDGE=false` unless you deliberately want the demo to send a generic receipt acknowledgement.
 
 ## Website form
 
@@ -42,29 +43,34 @@ Example:
 }
 ```
 
-When `WEBSITE_WEBHOOK_SECRET` is configured, send the same value in the `x-serviceflow-secret` header.
+If `WEBSITE_WEBHOOK_SECRET` is configured, send the same value in the `x-serviceflow-secret` header.
 
 ## SMS / Twilio-compatible webhook
 
-Point the inbound-message webhook to:
+Point an inbound-message webhook to:
 
 ```text
 /api/integrations/twilio/sms
 ```
 
-The prototype accepts Twilio-style form fields such as `MessageSid`, `From`, `To` and `Body`.
+The endpoint accepts Twilio-style form fields such as `MessageSid`, `From`, `To` and `Body`.
 
-## What automation is allowed to do
+A local `localhost` server cannot receive public provider webhooks; use a deployment or tunnel for a live provider demo.
 
-It may:
-- capture the request,
+## Automation boundaries
+
+Automation may:
+
+- capture a request,
 - extract supported customer/service details,
 - identify urgent equipment-down requests,
 - choose a simple next action,
 - prevent duplicates,
-- create the job automatically; uncertain service requests are marked for review on the same screen.
+- match an explicit follow-up to one unambiguous open job,
+- create a new job when appropriate.
 
-It must not invent:
+Automation must not invent:
+
 - prices,
 - diagnoses,
 - arrival times,
@@ -72,13 +78,12 @@ It must not invent:
 - completion status,
 - guarantees.
 
-
 ## Embedded call transcript processing
 
-The customer-facing job drawer contains the dialer. The prototype simulates the audio/conversation, then POSTs the transcript to:
+The job drawer contains the dialer. The prototype simulates the conversation and POSTs the transcript to:
 
 ```text
 /api/ai/call-summary
 ```
 
-With Gemini configured, the backend returns structured transcript-supported changes. Without Gemini, a deterministic JavaScript fallback keeps the demo functional. A production deployment would replace the simulated audio with a telephony provider and feed its transcript into the same endpoint.
+With Gemini configured, the backend returns structured transcript-supported changes. Without Gemini, deterministic JavaScript rules keep the demo functional. A production deployment would replace simulated audio with a telephony provider while keeping the same transcript-processing contract.

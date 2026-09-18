@@ -3,3 +3,5 @@ node_modules/
 .DS_Store
 data/active-port.txt
 data/runtime.json.tmp
+
+data/runtime.json
